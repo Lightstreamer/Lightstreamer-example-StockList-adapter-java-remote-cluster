@@ -19,7 +19,6 @@
 package stocklist_demo.adapters;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,7 +28,6 @@ import stocklist_demo.feed_simulator.ExternalFeedSimulator;
 import stocklist_demo.server.OutPrintLog;
 
 import com.lightstreamer.adapters.remote.DataProvider;
-import com.lightstreamer.adapters.remote.ItemEvent;
 import com.lightstreamer.adapters.remote.ItemEventListener;
 import com.lightstreamer.adapters.remote.SubscriptionException;
 import com.lightstreamer.adapters.remote.log.Logger;
@@ -168,17 +166,7 @@ public class StockQuotesDataAdapter implements DataProvider {
                 }
 
                
-                listener.update(itemName, new ItemEvent() {
-                    
-                    public final Iterator<String> getNames() {
-                        return currentValues.keySet().iterator();
-                    }
-
-                    public final Object getValue(String name) {
-                        return currentValues.get(name);
-                    }
-                
-                }, isSnapshot);
+                listener.update(itemName,currentValues,isSnapshot);
                 
                             
             }
