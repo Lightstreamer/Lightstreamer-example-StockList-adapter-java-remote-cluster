@@ -23,6 +23,8 @@ implemented to wrap any third-party logging library like logj4 or logback
 
 Check out the sources for further explanations.
 
+![General Architecture](generalarchitecture.png)
+
 ## Install
 
 If you want to install a version of this demo in your local Lightstreamer server, follow these steps:
