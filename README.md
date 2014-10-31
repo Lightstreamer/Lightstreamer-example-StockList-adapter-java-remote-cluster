@@ -10,7 +10,9 @@ As example of [Clients Using This Adapter](https://github.com/Weswit?query=light
 
 ## Details
 
-This project includes the implementation of the remote versions of the DataProvider interface for the *Stock-List Demo*. For the sake of completeness, the remote LiteralBasedProvider MeatadaProvider implementation, which ships with the Remote Java Adapters SDK, is used.
+This project includes the implementation of the remote versions of the DataProvider interface for the *Stock-List Demo*.
+The Metadata Adapter functionalities are absolved by the `LiteralBasedProvider`, a simple Remote Metadata Adapter already included in the Remote Java Adapters SDK binaries, which is enough for all demo clients.
+See also [Lightstreamer - Reusable Metadata Adapters - Remote Java Adapter](https://github.com/Weswit/Lightstreamer-example-ReusableMetadata-adapter-java-remote).
 
 * `StockQuotesDataAdapter.java` is a porting of the class with the same name from the [Lightstreamer - Stock-List Demo - Java Adapter](https://github.com/Weswit/Lightstreamer-example-StockList-adapter-java). 
 It implements the *DataProvider* interface and calls back Lightstreamer through the *ItemEventListener* interface. Use it as a starting point to implement your custom data adapter.
@@ -64,4 +66,4 @@ jar cvf java_sld_adapters.jar -C classes ./
 
 ## Lightstreamer Compatibility Notes
 
-- Compatible with Lightstreamer SDK for Remote Java Adapters since 1.0
+- Compatible with Lightstreamer SDK for Java Remote Adapters since 1.0
