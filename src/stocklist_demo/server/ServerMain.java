@@ -24,7 +24,7 @@ import java.util.Map;
 import stocklist_demo.adapters.StockQuotesDataAdapter;
 
 import com.lightstreamer.adapters.remote.DataProviderServer;
-import com.lightstreamer.adapters.remote.LiteralBasedProvider;
+import com.lightstreamer.adapters.remote.metadata.LiteralBasedProvider;
 import com.lightstreamer.adapters.remote.MetadataProviderServer;
 import com.lightstreamer.adapters.remote.Server;
 import com.lightstreamer.adapters.remote.log.Logger;

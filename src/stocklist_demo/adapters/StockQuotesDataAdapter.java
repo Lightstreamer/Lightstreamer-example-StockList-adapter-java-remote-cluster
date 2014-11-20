@@ -46,7 +46,7 @@ import com.lightstreamer.adapters.remote.log.Logger;
 public class StockQuotesDataAdapter implements DataProvider {
 
     private volatile ItemEventListener listener;
-    private final HashMap<String,Boolean> subscribedItems = new HashMap<String,Boolean>();
+    private final HashMap<String,SubscriptionInfo> subscribedItems = new HashMap<String,SubscriptionInfo>();
     private final ExternalFeedSimulator myFeed;
     
     private Logger logger;
@@ -96,11 +96,12 @@ public class StockQuotesDataAdapter implements DataProvider {
 
     @Override
     public void subscribe(String itemName) throws SubscriptionException {
-        logger.info("Subscribing to " + itemName);
+        logger.debug("Subscribing to " + itemName);
        
         if (itemName.startsWith("item")) {
             synchronized (subscribedItems) {
-                subscribedItems.put(itemName, new Boolean(false));
+                SubscriptionInfo si = new SubscriptionInfo(new Boolean(false), new Boolean(true));
+                subscribedItems.put(itemName, si);
             }
             // now we ask the feed for the snapshot; our feed will insert
             // an event with snapshot information into the normal updates flow
@@ -113,9 +114,12 @@ public class StockQuotesDataAdapter implements DataProvider {
 
     @Override
     public void unsubscribe(String itemName) {
-        logger.info("Unsubscribing from " + itemName);
+        logger.debug("Unsubscribing from " + itemName);
         synchronized (subscribedItems) {
-            subscribedItems.remove(itemName);
+            SubscriptionInfo si = subscribedItems.remove(itemName);
+            synchronized (si) {
+                si.stopSubscription();
+            }
         }
     }
 
@@ -143,19 +147,24 @@ public class StockQuotesDataAdapter implements DataProvider {
         
         public void onEvent(String itemName, final HashMap<String,String> currentValues,
                             boolean isSnapshot) {
+            SubscriptionInfo si;
+            
             synchronized (subscribedItems) {
                 if (!subscribedItems.containsKey(itemName)) {
                     return;
                 }
-                Boolean started = (Boolean) subscribedItems.get(itemName);
-                boolean snapshotReceived = started.booleanValue();
+                si = subscribedItems.get(itemName);
+            }
+            
+            synchronized (si) {
+                boolean snapshotReceived = si.getSnapshotReceived().booleanValue();
                 if (!snapshotReceived) {
                     if (!isSnapshot) {
                         // we ignore the update and keep waiting until
                         // a full snapshot for the item has been received
                         return;
                     }
-                    subscribedItems.put(itemName, new Boolean(true));
+                    si.setSnapshotReceived();
                 } else {
                     if (isSnapshot) {
                         // it's not the first event we have received carrying
@@ -165,14 +174,44 @@ public class StockQuotesDataAdapter implements DataProvider {
                     }
                 }
 
-               
-                listener.update(itemName,currentValues,isSnapshot);
-                
+                if (si.isStillSubscribed()) { 
+                    listener.update(itemName,currentValues,isSnapshot);
+                }
                             
             }
 
         }
 
+    }
+    
+    /**
+     * Manages the current state of the subscription 
+     * for a single Item.
+     */
+    private class SubscriptionInfo {
+        Boolean snapshotReceived = null;
+        public void setSnapshotReceived() {
+            this.snapshotReceived = new Boolean(true);
+        }
+
+        public Boolean getSnapshotReceived() {
+            return snapshotReceived;
+        }
+
+        Boolean stillSubscribed = null;
+        
+        public boolean isStillSubscribed() {
+            return this.stillSubscribed.booleanValue();
+        }
+        
+        public SubscriptionInfo(Boolean snapshotReceived, Boolean isStillSubscribed) {
+            this.snapshotReceived = snapshotReceived;
+            this.stillSubscribed = isStillSubscribed;
+        }
+        
+        public void  stopSubscription() {
+            this.stillSubscribed = new Boolean(false);
+        }
     }
     
 }
