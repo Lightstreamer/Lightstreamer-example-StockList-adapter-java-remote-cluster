@@ -51,7 +51,7 @@ public class ServerMain {
             help();
         }
 
-        _log.info("Lightstreamer StockListDemo .NET Adapter Standalone Server starting...");
+        _log.info("Lightstreamer StockListDemo Adapter Standalone Server starting...");
 
         Server.setLoggerProvider(OutPrintLog.getInstance());
 
@@ -139,11 +139,11 @@ public class ServerMain {
             starter.launch(server);
         }
 
-        _log.info("Lightstreamer StockListDemo .NET Adapter Standalone Server running");
+        _log.info("Lightstreamer StockListDemo Adapter Standalone Server running");
     }
 
     private static void help() {
-        _log.fatal("Lightstreamer StockListDemo .NET Adapter Standalone Server Help");
+        _log.fatal("Lightstreamer StockListDemo Adapter Standalone Server Help");
         _log.fatal("Usage: ");
         _log.fatal("                     [-name <name>] -host <address>");
         _log.fatal("                     -metadata_rrport <port> -data_rrport <port> -data_notifport <port>");
