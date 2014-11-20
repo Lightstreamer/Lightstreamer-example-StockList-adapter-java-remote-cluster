@@ -80,12 +80,16 @@ public class ServerStarter implements ExceptionHandler, Runnable {
             } catch (IOException e) {
                 _log.warn("Connection failed, retrying in 10 seconds...");
                 try {
-                    _rrSocket.close();
+                    if (_rrSocket != null) {
+                        _rrSocket.close();
+                    }
                 } catch (IOException e1) {
                 }
                 if (_notifSocket != null) {
                     try {
-                        _notifSocket.close();
+                        if (_notifSocket != null) {
+                            _notifSocket.close();
+                        }
                     } catch (IOException e1) {
                     }
                 }
