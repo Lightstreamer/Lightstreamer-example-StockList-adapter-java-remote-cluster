@@ -64,4 +64,4 @@ jar cvf java_sld_adapters.jar -C classes ./
 
 ## Lightstreamer Compatibility Notes
 
-- Compatible with Lightstreamer SDK for Java Remote Adapters since 1.0
+- Compatible with Lightstreamer SDK for Java Remote Adapters since 1.1
