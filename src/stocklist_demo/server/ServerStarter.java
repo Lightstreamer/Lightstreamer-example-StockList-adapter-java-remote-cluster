@@ -116,8 +116,14 @@ public class ServerStarter implements ExceptionHandler, Runnable {
     }
     @Override
     public boolean handleIOException(IOException exception) {
-        _log.error("Connection to Lightstreamer Server closed",exception);
-        _closed = true;
+        synchronized (this) {
+            if (_closed) {
+                return false;
+            } else {
+                _log.error("Connection to Lightstreamer Server closed",exception);
+                _closed = true;
+            }
+        }
         _server.close();
         System.exit(0);
         return false;
@@ -125,11 +131,16 @@ public class ServerStarter implements ExceptionHandler, Runnable {
 
     @Override
     public boolean handleException(RemotingException exception) {
-        if (!_closed) {
-            _log.error("Caught exception: " + exception.getMessage(), exception);
-            _server.close();
-            System.exit(1);
+        synchronized (this) {
+            if (_closed) {
+                return false;
+            } else {
+                _log.error("Caught exception: " + exception.getMessage(), exception);
+                _closed = true;
+            }
         }
+        _server.close();
+        System.exit(1);
         return false;
     }
 
