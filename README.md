@@ -4,7 +4,7 @@ The Stock-List demos simulate a market data feed and front-end for stock quotes.
 
 This project contains the source code and all the resources needed to install a remote version of the Java Stock-List Demo Data Adapter.
 
-As example of [Clients Using This Adapter](https://github.com/Lightstreamer?query=lightstreamer-example-stocklist-client), you may refer to the [Lightstreamer - Basic Stock-List Demo - HTML Client](https://github.com/Lightstreamer/Lightstreamer-example-StockList-client-javascript#basic-stock-list-demo---html-client) and view the corresponding [Live Demo](http://demos.lightstreamer.com/StockListDemo_Basic).
+As example of [Clients Using This Adapter](https://github.com/Lightstreamer?utf8=%E2%9C%93&q=lightstreamer-example-stocklist-client&type=&language=), you may refer to the [Lightstreamer - Basic Stock-List Demo - HTML Client](https://github.com/Lightstreamer/Lightstreamer-example-StockList-client-javascript#basic-stock-list-demo---html-client) and view the corresponding [Live Demo](http://demos.lightstreamer.com/StockListDemo_Basic).
 
 ## Details
 
@@ -35,7 +35,7 @@ If you want to install a version of this demo in your local Lightstreamer server
     * Open a command line to the `Deployment_Java_Server` folder and launch the Java Remote Server by issuing the following command
       `java -cp ./lib/ls-adapter-remote.jar;./lib/SLDRemoteAdapter.jar; stocklist_demo.server.ServerMain -host localhost -metadata_rrport 6663 -data_rrport 6661 -data_notifport 6662`
 * Launch Lightstreamer Server. The Server startup will complete only after a successful connection between the Proxy Adapters and the Remote Adapters.
-* Test the Adapter, launching one of the [compatible clients](https://github.com/Lightstreamer?query=lightstreamer-example-stocklist-client).
+* Test the Adapter, launching one of the [compatible clients](https://github.com/Lightstreamer?utf8=%E2%9C%93&q=lightstreamer-example-stocklist-client&type=&language=).
     * To make the Stock-List Demo applications, use the newly installed Adapter Set, you need to modify the code
 to change the required Adapter Set name from DEMO to STOCKLISTDEMO_REMOTE. Depending on the client library in use, the code might vary (e.g., in JavaScript `new LightstreamerClient(hostToUse,"DEMO");` has to be replaced by `new LightstreamerClient(hostToUse, "STOCKLISTDEMO_REMOTE");`). 
 (You don't need to reconfigure the Data Adapter name, as it is the same in both Adapter Sets).
