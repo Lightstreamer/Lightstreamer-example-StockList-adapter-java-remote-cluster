@@ -21,6 +21,9 @@ package stocklist_demo.server;
 import java.io.IOException;
 import java.net.Socket;
 
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+
 import com.lightstreamer.adapters.remote.DataProviderException;
 import com.lightstreamer.adapters.remote.ExceptionHandler;
 import com.lightstreamer.adapters.remote.MetadataProviderException;
@@ -36,11 +39,13 @@ public class ServerStarter implements ExceptionHandler, Runnable {
     private boolean _closed;
 
     private String _host;
+    private boolean _isTls;
     private int _rrPort;
     private int _notifPort;
 
-    public ServerStarter(String host, int rrPort, int notifPort) {
+    public ServerStarter(String host, boolean isTls, int rrPort, int notifPort) {
         _host = host;
+        _isTls = isTls;
         _rrPort = rrPort;
         _notifPort = notifPort;
     }
@@ -61,23 +66,19 @@ public class ServerStarter implements ExceptionHandler, Runnable {
             _log.info("Connecting...");
 
             try {
-                _log.info("Opening connection on port " + _rrPort + "...");
-                _rrSocket = new Socket(_host, _rrPort);
-                if (_notifPort >= 0) {
-                    _log.info("Opening connection on port " + _notifPort + "...");
-                    _notifSocket = new Socket(_host, _notifPort);
-                }
-
-                _log.info("Connected");
-                
+                _rrSocket = createProperSocket(_host, _isTls, _rrPort);
                 _server.setRequestStream(_rrSocket.getInputStream());
                 _server.setReplyStream(_rrSocket.getOutputStream());
-                if (_notifSocket != null) {
+                if (_notifPort >= 0) {
+                    _notifSocket = createProperSocket(_host, _isTls, _notifPort);
                     _server.setNotifyStream(_notifSocket.getOutputStream());
                 }
 
+                _log.info("Connected");
                 break;
+
             } catch (IOException e) {
+                _log.info("Connection failed: " + e);
                 _log.warn("Connection failed, retrying in 10 seconds...");
                 try {
                     if (_rrSocket != null) {
@@ -102,18 +103,27 @@ public class ServerStarter implements ExceptionHandler, Runnable {
 
         } while (true);
 
-        
-
         try {
             _server.start();
-        } catch (DataProviderException | MetadataProviderException
-                | RemotingException e) {
-           
+            
+        } catch (DataProviderException | MetadataProviderException | RemotingException e) {
             _log.fatal("Exception caught while starting the server: " + e.getMessage() + ", aborting...", e);
             _server.close();
             System.exit(1);
         }
     }
+    
+    private static Socket createProperSocket(String host, boolean isTls, int port) throws IOException {
+        _log.info("Opening connection on port " + port + (isTls ? " with TLS" : "") + "...");
+        if (isTls) {
+            SSLSocket socket = (SSLSocket) SSLSocketFactory.getDefault().createSocket(host, port);
+            socket.startHandshake();
+            return socket;
+        } else {
+            return new Socket(host, port);
+        }
+    }
+    
     @Override
     public boolean handleIOException(IOException exception) {
         synchronized (this) {
