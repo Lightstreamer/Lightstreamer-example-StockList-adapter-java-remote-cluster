@@ -16,21 +16,24 @@
 *
 */
 
-package stocklist_demo.server;
+package com.lightstreamer.example_StockList_adapter_java_remote.server;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import stocklist_demo.adapters.StockQuotesDataAdapter;
+import com.lightstreamer.example_StockList_adapter_java_remote.adapters.StockQuotesDataAdapter;
 
 import com.lightstreamer.adapters.remote.DataProviderServer;
 import com.lightstreamer.adapters.remote.metadata.LiteralBasedProvider;
 import com.lightstreamer.adapters.remote.MetadataProviderServer;
 import com.lightstreamer.adapters.remote.Server;
-import com.lightstreamer.adapters.remote.log.Logger;
+
+import com.lightstreamer.log.LogManager;
+import com.lightstreamer.log.Logger;
+import com.lightstreamer.log.system_out.SystemOutLogProvider;
 
 public class ServerMain {
-    private static Logger _log = OutPrintLog.getInstance().getLogger("LS_demos_Logger.StockQuotes.Server");
+    private static Logger _log = LogManager.getLogger("LS_demos_Logger.StockQuotes.Server");
 
     public static final String PREFIX1 = "-";
     public static final String PREFIX2 = "/";
@@ -56,7 +59,7 @@ public class ServerMain {
 
         _log.info("Lightstreamer StockListDemo Adapter Standalone Server starting...");
 
-        Server.setLoggerProvider(OutPrintLog.getInstance());
+        Server.setLoggerProvider(new SystemOutLogProvider());
 
         Map<String,String> parameters = new HashMap<String,String>();
         String host = null;

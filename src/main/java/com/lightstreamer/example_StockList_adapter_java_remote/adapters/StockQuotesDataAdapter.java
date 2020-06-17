@@ -16,21 +16,21 @@
 *
 */
 
-package stocklist_demo.adapters;
+package com.lightstreamer.example_StockList_adapter_java_remote.adapters;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import stocklist_demo.feed_simulator.ExternalFeedListener;
-import stocklist_demo.feed_simulator.ExternalFeedSimulator;
-import stocklist_demo.server.OutPrintLog;
+import com.lightstreamer.example_StockList_adapter_java_remote.feed_simulator.ExternalFeedListener;
+import com.lightstreamer.example_StockList_adapter_java_remote.feed_simulator.ExternalFeedSimulator;
 
 import com.lightstreamer.adapters.remote.DataProvider;
 import com.lightstreamer.adapters.remote.ItemEventListener;
 import com.lightstreamer.adapters.remote.SubscriptionException;
-import com.lightstreamer.adapters.remote.log.Logger;
+import com.lightstreamer.log.LogManager;
+import com.lightstreamer.log.Logger;
 
 
 /**
@@ -75,7 +75,7 @@ public class StockQuotesDataAdapter implements DataProvider {
     @Override
     public void init(Map<String, String> params, String configFile) {
         
-        logger = OutPrintLog.getInstance().getLogger("LS_demos_Logger.StockQuotes");
+        logger = LogManager.getLogger("LS_demos_Logger.StockQuotes");
         
         //The feedMap of this adapter is never used
         // Read the Adapter Set name, which is supplied by the Server as a parameter

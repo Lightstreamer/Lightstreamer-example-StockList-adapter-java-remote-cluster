@@ -16,7 +16,7 @@
 *
 */
 
-package stocklist_demo.feed_simulator;
+package com.lightstreamer.example_StockList_adapter_java_remote.feed_simulator;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

@@ -16,7 +16,7 @@
 *
 */
 
-package stocklist_demo.server;
+package com.lightstreamer.example_StockList_adapter_java_remote.server;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -29,11 +29,11 @@ import com.lightstreamer.adapters.remote.ExceptionHandler;
 import com.lightstreamer.adapters.remote.MetadataProviderException;
 import com.lightstreamer.adapters.remote.RemotingException;
 import com.lightstreamer.adapters.remote.Server;
-import com.lightstreamer.adapters.remote.log.Logger;
+import com.lightstreamer.log.LogManager;
 
 
 public class ServerStarter implements ExceptionHandler, Runnable {
-    private static Logger _log = OutPrintLog.getInstance().getLogger("LS_demos_Logger.StockQuotes.ServerStarter");
+    private static com.lightstreamer.log.Logger _log = LogManager.getLogger("LS_demos_Logger.StockQuotes.ServerStarter");
 
     private Server _server;
     private boolean _closed;
