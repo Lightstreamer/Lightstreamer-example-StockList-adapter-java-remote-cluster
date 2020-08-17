@@ -44,14 +44,6 @@
     </plugins>
   </build>
   
-  <repositories>
-    <repository>
-      <id>lightstreamer</id>
-      <name>Lightstreamer repository</name>
-      <url>https://www.lightstreamer.com/repo/maven</url>
-    </repository>
-  </repositories>
-
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
@@ -66,7 +58,7 @@
     </dependency>
     <dependency>
       <groupId>com.lightstreamer</groupId>
-	  <artifactId>java-system-out-log</artifactId>
+      <artifactId>java-system-out-log</artifactId>
       <version>1.0.2</version>
     </dependency>
   </dependencies>
