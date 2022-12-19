@@ -115,13 +115,23 @@ public class ServerStarter implements ExceptionHandler, Runnable {
     
     private static Socket createProperSocket(String host, boolean isTls, int port) throws IOException {
         _log.info("Opening connection on port " + port + (isTls ? " with TLS" : "") + "...");
-        if (isTls) {
-            SSLSocket socket = (SSLSocket) SSLSocketFactory.getDefault().createSocket(host, port);
-            socket.startHandshake();
-            return socket;
-        } else {
-            return new Socket(host, port);
+        Socket s = null;
+        try {
+            if (isTls) {
+                SSLSocket socket = (SSLSocket) SSLSocketFactory.getDefault().createSocket(host, port);
+                socket.startHandshake();
+                s = socket;
+            } else {
+                s = new Socket(host, port);
+            }
+        } finally {
+            if (s != null) {
+                _log.info("Connection on port " + port + " opened");
+            } else {
+                _log.info("Connection on port " + port + " failed");
+            }
         }
+        return s;
     }
     
     @Override
