@@ -62,7 +62,7 @@ and the same should be added in the <metadata_provider> block.
 
 This requires that a suitable keystore with a valid certificate is provided. See the configuration details in the [provided template](https://lightstreamer.com/docs/ls-server/7.2.0/remote_adapter_robust_conf_template/adapters.xml).
 NOTE: For your experiments, you can configure the adapters.xml to use the same JKS keystore "myserver.keystore" provided out of the box in the Lightstreamer distribution. Since this keystore contains an invalid certificate, remember to configure your local environment to "trust" it.
-The sample Remote Server provided in the `Deployment_DotNet_Adapters` directory in `deploy.zip` is already predisposed for TLS connection on all ports. You can rerun the demo with the new configuration by launching the Java Remote Server with a command like this:
+The sample Remote Server provided in the `Deployment_Java_Server` directory in `deploy.zip` is already predisposed for TLS connection on all ports. You can rerun the demo with the new configuration by launching the Java Remote Server with a command like this:
   `java -cp ".\example-StockList-adapter-java-remote-0.0.1-SNAPSHOT.jar;.\dependency\*" com.lightstreamer.example_StockList_adapter_java_remote.server.ServerMain -host xxxxxxxx -tls -metadata_rrport 6663 -data_rrport 6661 -data_notifport 6662`
 where the same hostname supported by the provided certificate must be supplied.
 
@@ -81,7 +81,7 @@ Each TCP connection from a Remote Adapter can be subject to Remote Adapter authe
 and the same should be added in the <metadata_provider> block.
 
 See the configuration details in the [provided template](https://lightstreamer.com/docs/ls-server/7.2.0/remote_adapter_robust_conf_template/adapters.xml).
-The sample Remote Server provided in the `Deployment_DotNet_Adapters` directory in `deploy.zip` is already predisposed for credential submission on both adapters. You can rerun the demo with the new configuration by launching the Java Remote Server with a command like this:
+The sample Remote Server provided in the `Deployment_Java_Server` directory in `deploy.zip` is already predisposed for credential submission on both adapters. You can rerun the demo with the new configuration by launching the Java Remote Server with a command like this:
   `java -cp ".\example-StockList-adapter-java-remote-0.0.1-SNAPSHOT.jar;.\dependency\*" com.lightstreamer.example_StockList_adapter_java_remote.server.ServerMain -host localhost -user user1 -password pwd1 -metadata_rrport 6663 -data_rrport 6661 -data_notifport 6662`
 
 Authentication can (and should) be combined with TLS encryption.
