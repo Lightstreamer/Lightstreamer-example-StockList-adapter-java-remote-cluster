@@ -198,10 +198,8 @@ public class ServerMain {
         _log.fatal("Notes: (1) The adapter name is optional, if it is not given the adapter will be");
         _log.fatal("           assigned a progressive number name like \"#1\", \"#2\" and so on");
         _log.fatal("       (2) The communication will be from here to LS, not viceversa");
-        _log.fatal("       (3) The notification port is necessary for a Data Adapter");
-        _log.fatal("           (at least, this is mandatory for Servers earlier than 7.4,");
-        _log.fatal("           then it is supported for backward compatibility),");
-        _log.fatal("           while it is not needed for a Metadata Adapter");
+        _log.fatal("       (3) The notification port is necessary for a Data Adapter, while it is");
+        _log.fatal("           not needed for a Metadata Adapter");
         _log.fatal("       (4) TLS communication and user-password submission may or may not be needed");
         _log.fatal("           depending on the LS Proxy Adapter configuration");
         _log.fatal("       (5) The parameters name/value pairs will be passed to the LiteralBasedProvider");
