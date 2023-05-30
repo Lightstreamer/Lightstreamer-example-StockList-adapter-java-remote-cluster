@@ -45,9 +45,9 @@ public class ServerMain {
 
     public static final String ARG_HOST = "host";
     public static final String ARG_TLS = "tls"; // will use lowercase
+    public static final String ARG_NOVERIFY = "noverify"; // will use lowercase
     public static final String ARG_METADATA_RR_PORT = "metadata_rrport";
     public static final String ARG_DATA_RR_PORT = "data_rrport";
-    public static final String ARG_DATA_NOTIF_PORT = "data_notifport";
     public static final String ARG_USER = "user";
     public static final String ARG_PASSWORD = "password";
     public static final String ARG_NAME = "name";
@@ -64,9 +64,9 @@ public class ServerMain {
         Map<String,String> parameters = new HashMap<String,String>();
         String host = null;
         boolean isTls = false;
+        boolean isHostnameVerify = true;
         int rrPortMD = -1;
         int rrPortD = -1;
-        int notifPortD = -1;
         String username = null;
         String password = null;
         String name = null;
@@ -86,6 +86,10 @@ public class ServerMain {
                     _log.debug("Found argument: '" + ARG_HOST + "' with value: '" + host + "'");
                 } else if (arg.equals(ARG_TLS)) {
                     isTls = true;
+                    if (i+1 < args.length && args[i+1].equals(ARG_NOVERIFY)) {
+                        i++;
+                        isHostnameVerify = false;
+                    }
 
                     _log.debug("Found argument: '" + ARG_TLS + "'");
                 } else if (arg.equals(ARG_METADATA_RR_PORT)) {
@@ -98,11 +102,6 @@ public class ServerMain {
                     rrPortD = Integer.parseInt(args[i]);
 
                     _log.debug("Found argument: '" + ARG_DATA_RR_PORT + "' with value: '" + rrPortD + "'");
-                } else if (arg.equals(ARG_DATA_NOTIF_PORT)) {
-                    i++;
-                    notifPortD = Integer.parseInt(args[i]);
-
-                    _log.debug("Found argument: '" + ARG_DATA_NOTIF_PORT + "' with value: '" + notifPortD + "'");
                 } else if (arg.equals(ARG_USER)) {
                     i++;
                     username = args[i];
@@ -155,7 +154,7 @@ public class ServerMain {
             
             _log.debug("Remote Metadata Adapter initialized");
    
-            ServerStarter starter = new ServerStarter(host, isTls, rrPortMD, -1);
+            ServerStarter starter = new ServerStarter(host, isTls, isHostnameVerify, rrPortMD);
             starter.launch(server);
         }
         {
@@ -173,7 +172,7 @@ public class ServerMain {
 
             _log.debug("Remote Data Adapter initialized");
    
-            ServerStarter starter = new ServerStarter(host, isTls, rrPortD, notifPortD);
+            ServerStarter starter = new ServerStarter(host, isTls, isHostnameVerify, rrPortD);
             starter.launch(server);
         }
 
@@ -184,25 +183,25 @@ public class ServerMain {
         _log.fatal("Lightstreamer StockListDemo Adapter Standalone Server Help");
         _log.fatal("Usage: ");
         _log.fatal("                     [-name <name>]");
-        _log.fatal("                     -host <address> [-tls]");
-        _log.fatal("                     -metadata_rrport <port> -data_rrport <port> -data_notifport <port>");
+        _log.fatal("                     [-host <address>] [-tls [noverify]]");
+        _log.fatal("                     -metadata_rrport <port> -data_rrport <port>");
         _log.fatal("                     [-user <user> -password <password>]");
         _log.fatal("                     [\"<param1>=<value1>\" ... \"<paramN>=<valueN>\"]");
         _log.fatal("Where: <name>        is the symbolic name for both the adapters (1)");
         _log.fatal("       <address>     is the host name or ip address of LS server (2)");
-        _log.fatal("       <port>        is the tcp port number where LS proxy is listening on (3)");
-        _log.fatal("       -tls          if indicated, initiates a TLS-encrypted communication (4)");
-        _log.fatal("       <username>    is sent, along with <password>, to the LS proxy (4)");
-        _log.fatal("       <paramN>      is the Nth metadata adapter parameter name (5)");
-        _log.fatal("       <valueN>      is the value of the Nth metadata adapter parameter (5)");
+        _log.fatal("       <port>        is the tcp port number where LS proxy is listening on (2)");
+        _log.fatal("       -tls          if indicated, initiates a TLS-encrypted communication (3)");
+        _log.fatal("       noverify      if added, suppresses TLS certificate hostname check");
+        _log.fatal("       <username>    is sent, along with <password>, to the LS proxy (3)");
+        _log.fatal("       <paramN>      is the Nth metadata adapter parameter name (4)");
+        _log.fatal("       <valueN>      is the value of the Nth metadata adapter parameter (4)");
         _log.fatal("Notes: (1) The adapter name is optional, if it is not given the adapter will be");
         _log.fatal("           assigned a progressive number name like \"#1\", \"#2\" and so on");
-        _log.fatal("       (2) The communication will be from here to LS, not viceversa");
-        _log.fatal("       (3) The notification port is necessary for a Data Adapter, while it is");
-        _log.fatal("           not needed for a Metadata Adapter");
-        _log.fatal("       (4) TLS communication and user-password submission may or may not be needed");
+        _log.fatal("       (2) The connection will be from here to LS (normal case),");
+        _log.fatal("           or from LS to here (inversion case) if host omitted");
+        _log.fatal("       (3) TLS communication and user-password submission may or may not be needed");
         _log.fatal("           depending on the LS Proxy Adapter configuration");
-        _log.fatal("       (5) The parameters name/value pairs will be passed to the LiteralBasedProvider");
+        _log.fatal("       (4) The parameters name/value pairs will be passed to the LiteralBasedProvider");
         _log.fatal("           Metadata Adapter as a Map in the \"parameters\" Init() argument");
         _log.fatal("           The StockListDemo Data Adapter requires no parameters");
         _log.fatal("Aborting...");

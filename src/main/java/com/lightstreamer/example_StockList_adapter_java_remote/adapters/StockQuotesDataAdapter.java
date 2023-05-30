@@ -100,7 +100,7 @@ public class StockQuotesDataAdapter implements DataProvider {
        
         if (itemName.startsWith("item")) {
             synchronized (subscribedItems) {
-                SubscriptionInfo si = new SubscriptionInfo(new Boolean(false), new Boolean(true));
+                SubscriptionInfo si = new SubscriptionInfo(Boolean.valueOf(false), Boolean.valueOf(true));
                 subscribedItems.put(itemName, si);
             }
             // now we ask the feed for the snapshot; our feed will insert
@@ -191,7 +191,7 @@ public class StockQuotesDataAdapter implements DataProvider {
     private class SubscriptionInfo {
         Boolean snapshotReceived = null;
         public void setSnapshotReceived() {
-            this.snapshotReceived = new Boolean(true);
+            this.snapshotReceived = Boolean.valueOf(true);
         }
 
         public Boolean getSnapshotReceived() {
@@ -210,7 +210,7 @@ public class StockQuotesDataAdapter implements DataProvider {
         }
         
         public void  stopSubscription() {
-            this.stillSubscribed = new Boolean(false);
+            this.stillSubscribed = Boolean.valueOf(false);
         }
     }
     

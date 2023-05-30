@@ -4,7 +4,7 @@
 
   <groupId>com.lightstreamer</groupId>
   <artifactId>example-StockList-adapter-java-remote</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>example-StockList-adapter-java-remote</name>
@@ -54,7 +54,7 @@
     <dependency>
       <groupId>com.lightstreamer</groupId>
       <artifactId>ls-adapter-remote</artifactId>
-      <version>1.4.0</version>
+      <version>1.7.0</version>
     </dependency>
     <dependency>
       <groupId>com.lightstreamer</groupId>

@@ -19,8 +19,15 @@
 package com.lightstreamer.example_StockList_adapter_java_remote.server;
 
 import java.io.IOException;
+import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.GeneralSecurityException;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLServerSocketFactory;
+import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
@@ -40,14 +47,14 @@ public class ServerStarter implements ExceptionHandler, Runnable {
 
     private String _host;
     private boolean _isTls;
+    private boolean _isHostnameVerify;
     private int _rrPort;
-    private int _notifPort;
 
-    public ServerStarter(String host, boolean isTls, int rrPort, int notifPort) {
+    public ServerStarter(String host, boolean isTls, boolean isHostnameVerify, int rrPort) {
         _host = host;
         _isTls = isTls;
+        _isHostnameVerify = isHostnameVerify;
         _rrPort = rrPort;
-        _notifPort = notifPort;
     }
 
     public final void launch(Server server) {
@@ -60,24 +67,23 @@ public class ServerStarter implements ExceptionHandler, Runnable {
 
     public final void run() {
         Socket _rrSocket = null;
-        Socket _notifSocket = null;
 
         do {
             _log.info("Connecting...");
 
             try {
-                _rrSocket = createProperSocket(_host, _isTls, _rrPort);
+                if (_host != null) {
+                    _rrSocket = createProperSocket(_host, _isTls, _isHostnameVerify, _rrPort);
+                } else {
+                    _rrSocket = acceptProperSocket(_isTls, _rrPort);
+                }
                 _server.setRequestStream(_rrSocket.getInputStream());
                 _server.setReplyStream(_rrSocket.getOutputStream());
-                if (_notifPort >= 0) {
-                    _notifSocket = createProperSocket(_host, _isTls, _notifPort);
-                    _server.setNotifyStream(_notifSocket.getOutputStream());
-                }
 
                 _log.info("Connected");
                 break;
 
-            } catch (IOException e) {
+            } catch (IOException | GeneralSecurityException e) {
                 _log.info("Connection failed: " + e);
                 _log.warn("Connection failed, retrying in 10 seconds...");
                 try {
@@ -85,14 +91,6 @@ public class ServerStarter implements ExceptionHandler, Runnable {
                         _rrSocket.close();
                     }
                 } catch (IOException e1) {
-                }
-                if (_notifSocket != null) {
-                    try {
-                        if (_notifSocket != null) {
-                            _notifSocket.close();
-                        }
-                    } catch (IOException e1) {
-                    }
                 }
                 
                 try {
@@ -113,13 +111,23 @@ public class ServerStarter implements ExceptionHandler, Runnable {
         }
     }
     
-    private static Socket createProperSocket(String host, boolean isTls, int port) throws IOException {
+    private static Socket createProperSocket(String host, boolean isTls, boolean isHostnameVerify, int port) throws IOException {
         _log.info("Opening connection on port " + port + (isTls ? " with TLS" : "") + "...");
         Socket s = null;
         try {
             if (isTls) {
                 SSLSocket socket = (SSLSocket) SSLSocketFactory.getDefault().createSocket(host, port);
                 socket.startHandshake();
+                if (isHostnameVerify) {
+                    // hostname check; could be disabled to simplify tests
+                    HostnameVerifier hv = HttpsURLConnection.getDefaultHostnameVerifier();
+                    SSLSession ssls = socket.getSession();
+                    if (! hv.verify(host, ssls)) {
+                        _log.error("Name verification failed: found " + ssls.getPeerPrincipal());
+                        socket.close();
+                        throw new IOException("Name verification failed");
+                    }
+                }
                 s = socket;
             } else {
                 s = new Socket(host, port);
@@ -129,6 +137,45 @@ public class ServerStarter implements ExceptionHandler, Runnable {
                 _log.info("Connection on port " + port + " opened");
             } else {
                 _log.info("Connection on port " + port + " failed");
+            }
+        }
+        return s;
+    }
+    
+    private static Socket acceptProperSocket(boolean isTls, int port) throws IOException, GeneralSecurityException {
+        _log.info("Listening on port " + port + (isTls ? " with TLS" : "") + "...");
+        Socket s = null;
+        ServerSocket serverSocket = null;
+        try {
+            if (isTls) {
+                SSLServerSocketFactory factory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
+                    // leans on the following java system properties to be configured:
+                    // - javax.net.ssl.keyStore
+                    // - javax.net.ssl.keyStorePassword
+                serverSocket = factory.createServerSocket(port);
+                if (false) {
+                    // possible further authentication challenge on the Proxy Adapter 
+                    ((SSLServerSocket) serverSocket).setNeedClientAuth(true);
+                }
+            } else {
+                serverSocket = new ServerSocket(port);
+            }
+            s = serverSocket.accept();
+            if (isTls) {
+                ((SSLSocket) s).startHandshake();
+            }
+        } finally {
+            if (s != null) {
+                _log.info("Connection on port " + port + " opened");
+            } else {
+                _log.info("Connection on port " + port + " failed");
+            }
+            if (serverSocket != null) {
+                try {
+                    serverSocket.close();
+                } catch (IOException e) {
+                    _log.warn("Issue while closing the server socket on port " + port, e);
+                }
             }
         }
         return s;
