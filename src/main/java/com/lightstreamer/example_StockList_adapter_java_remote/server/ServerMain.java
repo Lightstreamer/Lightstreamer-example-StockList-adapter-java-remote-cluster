@@ -27,6 +27,7 @@ import com.lightstreamer.adapters.remote.MetadataProviderServer;
 import com.lightstreamer.adapters.remote.Server;
 import com.lightstreamer.adapters.remote.metadata.LiteralBasedProvider;
 import com.lightstreamer.example_StockList_adapter_java_remote.adapters.StockQuotesDataAdapter;
+import com.lightstreamer.example_StockList_adapter_java_remote.feed_simulator.ExternalFeedSimulator;
 import com.lightstreamer.log.LogManager;
 import com.lightstreamer.log.Logger;
 import com.lightstreamer.log.system_out.SystemOutLogProvider;
@@ -131,14 +132,11 @@ public class ServerMain {
 			return;
 		}
 
-		{
-			ServerStarter metadataServerStarter = new ServerStarter(isTls, rrPortMD);
-			metadataServerStarter.launch(newMetadataProvider(parameters, username, password, name));
-		}
-		{
-			ServerStarter starter = new ServerStarter(isTls, rrPortD);
-			starter.launch(newDataProvider(username, password, name));
-		}
+		ServerStarter metadataServerStarter = new ServerStarter(isTls, rrPortMD);
+		metadataServerStarter.launch(newMetadataProvider(parameters, username, password, name));
+
+		ServerStarter dataServerStarter = new ServerStarter(isTls, rrPortD);
+		dataServerStarter.launch(newDataProvider(username, password, name));
 
 		log.info("Lightstreamer StockListDemo Adapter Standalone Server running");
 	}
@@ -163,9 +161,10 @@ public class ServerMain {
 	}
 
 	private static Supplier<? extends Server> newDataProvider(String username, String password, String name) {
+		ExternalFeedSimulator feed = new ExternalFeedSimulator();
 		return () -> {
 			DataProviderServer server = new DataProviderServer();
-			server.setAdapter(new StockQuotesDataAdapter());
+			server.setAdapter(new StockQuotesDataAdapter(feed));
 			// server.AdapterParams not needed by StockListDemoAdapter
 			// server.AdapterConfig not needed by StockListDemoAdapter
 			if (name != null) {

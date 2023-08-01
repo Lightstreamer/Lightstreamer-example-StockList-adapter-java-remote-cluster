@@ -65,8 +65,8 @@ public class StockQuotesDataAdapter implements DataProvider {
     public static final ConcurrentHashMap<String, StockQuotesDataAdapter> feedMap =
         new ConcurrentHashMap<String, StockQuotesDataAdapter>();
 
-    public StockQuotesDataAdapter() {
-        myFeed = new ExternalFeedSimulator();
+    public StockQuotesDataAdapter(ExternalFeedSimulator feed) {
+        myFeed = feed;
     }
 
     /**
@@ -92,7 +92,7 @@ public class StockQuotesDataAdapter implements DataProvider {
     @Override
     public void setListener(ItemEventListener listener) {
         this.listener = listener;
-        myFeed.setFeedListener(new MyFeedListener());
+        myFeed.addFeedListener(new MyFeedListener());
     }
 
     @Override

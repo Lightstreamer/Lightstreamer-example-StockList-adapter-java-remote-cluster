@@ -22,6 +22,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -109,10 +110,10 @@ public class ExternalFeedSimulator {
      */
     private final ArrayList<MyProducer> stockGenerators = new ArrayList<MyProducer>();
 
-    private ExternalFeedListener listener;
+    private List<ExternalFeedListener> listeners = new ArrayList<>();
 
     /**
-     * Starts generating update events for the stocks. Sumulates attaching
+     * Starts generating update events for the stocks. Simulates attaching
      * and reading from an external broadcast feed.
      */
     public void start() {
@@ -125,11 +126,11 @@ public class ExternalFeedSimulator {
     }
 
     /**
-     * Sets an internal listener for the update events.
+     * Adds an internal listener for the update events.
      * Since now, the update events were ignored.
      */
-    public void setFeedListener(ExternalFeedListener listener) {
-        this.listener = listener;
+    public void addFeedListener(ExternalFeedListener listener) {
+        listeners.add(listener);
     }
 
     /**
@@ -142,11 +143,11 @@ public class ExternalFeedSimulator {
                 long nextWaitTime;
                 synchronized (producer) {
                     producer.computeNewValues();
-                    if (listener != null) {
+                    listeners.stream().forEach(listener->
                         listener.onEvent(producer.itemName,
                                          producer.getCurrentValues(false),
-                                         false);
-                    }
+                                         false)
+                    );
                     nextWaitTime = producer.computeNextWaitTime();
                 }
                 scheduleGenerator(producer, nextWaitTime);
@@ -158,15 +159,17 @@ public class ExternalFeedSimulator {
      * Forces sending an event with a full snapshot for a stock.
      */
     public void sendCurrentValues(String itemName) {
-        for (int i = 0; i < 30; i++) {
-            final MyProducer myProducer = (MyProducer) stockGenerators.get(i);
+        for (int i = 0; i < stockGenerators.size(); i++) {
+            final MyProducer myProducer = stockGenerators.get(i);
             if (myProducer.itemName.equals(itemName)) {
                 dispatcher.schedule(new TimerTask() {
                     public void run() {
                         synchronized (myProducer) {
+                            listeners.stream().forEach(listener->
                             listener.onEvent(myProducer.itemName,
-                                             myProducer.getCurrentValues(true),
-                                             true);
+                            		myProducer.getCurrentValues(true),
+                            		true)
+                            );
                         }
                     }
                 }, 0);
