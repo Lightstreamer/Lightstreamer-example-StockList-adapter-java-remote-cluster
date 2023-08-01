@@ -122,11 +122,13 @@ public class ServerStarter implements Runnable {
 	public final void run() {
 		while (true) {
 			log.info("Connecting...");
-			try (Socket _rrSocket = acceptProperSocket(isTls, rrPort);) {
+			Socket rrSocket = null;
+			try {
+				rrSocket = acceptProperSocket(isTls, rrPort);
 				Server server = serverSupplier.get();
 				server.setExceptionHandler(new ServerExceptionHandler(server));
-				server.setRequestStream(_rrSocket.getInputStream());
-				server.setReplyStream(_rrSocket.getOutputStream());
+				server.setRequestStream(rrSocket.getInputStream());
+				server.setReplyStream(rrSocket.getOutputStream());
 
 				log.info("Connected");
 
@@ -139,6 +141,12 @@ public class ServerStarter implements Runnable {
 
 			} catch (IOException e) {
 				log.info("Connection failed: " + e);
+				if (rrSocket != null) {
+					try {
+						rrSocket.close();
+					} catch (IOException e1) {
+					}
+				}
 			}
 
 		}
