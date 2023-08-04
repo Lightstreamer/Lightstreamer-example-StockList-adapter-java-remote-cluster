@@ -26,9 +26,7 @@ Check out the sources for further explanations.
 
 ## Install
 
-### Install the demo with the connection inversion option
-
-As said, in this case, the Proxy Adapters will connect to the Remote Java Adapter Server, not vice-versa.
+As said, the Proxy Adapters will connect to the Remote Java Adapter Server, not vice-versa.
 This Requires a specific configuration on Lightstreamer Server in adapters.xml, where
 ```xml
     <param name="remote_host">localhost</param>
@@ -52,9 +50,9 @@ If you want to install a version of this demo in your local Lightstreamer server
     * In case the JavaScript client is used, you might need to disable the connection sharing to avoid adapter sets conflicts (e.g., by removing or modifiyng `sharingClient.connectionSharing.enableSharing("DemoCommonConnection","ls/","SHARE_SESSION", true);`)
 You can now launch the demo that will be fed by the remote adapter.
 
-#### Available improvements
+### Available improvements
 
-##### Add Encryption
+#### Add Encryption
 
 Each TCP connection from a Proxy Adapter can be encrypted via TLS. To have the Remote Server accept only TLS connections, a suitable keystore with a valid certificate should be provided to the Remote Server.
 The sample code in the `ServerStarter` class supports this case by leaning on the JDK implementation, hence keystore information can be provided on the command line through the JSSE system properties `javax.net.ssl.keyStore` and `javax.net.ssl.keyStorePassword`.
@@ -84,7 +82,7 @@ This can be done by adding suitable parameters in adapters.xml in the <data_prov
 ```
 See the configuration details in the [provided template](https://lightstreamer.com/docs/ls-server/latest/remote_adapter_robust_conf_template/adapters.xml).
 
-##### Add Authentication
+#### Add Authentication
 
 The Proxy Adapter can authenticate the Remote Server through user/password credentials in the same way shown for the normal connection policy.
 However, with the connection inversion policy, the TLS certificate check performed by the Proxy Adapter upon connection can also be used to authenticate the Remote Server.
@@ -112,13 +110,8 @@ Assuming Maven is installed and available in your path you can build the demo by
 
 You can also run the application with the following command
 ```sh
- mvn exec:java -Dexec.args="-host localhost -metadata_rrport 6663 -data_rrport 6661"
-```
-(or
-```sh
  mvn exec:java -Dexec.args="-metadata_rrport 6663 -data_rrport 6661"
 ```
-for the connection inversion option).
 
 ## See Also
 * [Adapter Remoting Infrastructure Network Protocol Specification](https://lightstreamer.com/api/ls-generic-adapter/latest/ARI%20Protocol.pdf)
