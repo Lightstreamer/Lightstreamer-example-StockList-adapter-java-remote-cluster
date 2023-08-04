@@ -1,124 +1,30 @@
-# Lightstreamer - Stock-List Demo - Java Remote Adapter
+# Lightstreamer - Stock-List Inversion Demo - Java Remote Adapter
 
-The Stock-List demos simulate a market data feed and front-end for stock quotes. They show a list of stock symbols and updates prices and other fields displayed on the page in real-time.
-
-This project contains the source code and all the resources needed to install a remote version of the Java Stock-List Demo Data Adapter.
+The Stock-List Inversion demo is a specialised version of the [Lightstreamer - Stock-List Demo - Java Remote Adapter](https://github.com/Lightstreamer/Lightstreamer-example-StockList-adapter-java-remote), where the connection inversion options is shown.
 
 As example of [Clients Using This Adapter](https://github.com/Lightstreamer?utf8=%E2%9C%93&q=lightstreamer-example-stocklist-client&type=&language=), you may refer to the [Lightstreamer - Basic Stock-List Demo - HTML Client](https://github.com/Lightstreamer/Lightstreamer-example-StockList-client-javascript#basic-stock-list-demo---html-client) and view the corresponding [Live Demo](http://demos.lightstreamer.com/StockListDemo_Basic).
 
 ## Details
 
-This project includes the implementation of the remote versions of the DataProvider interface for the *Stock-List Demo*.
-The Metadata Adapter functionalities are absolved by the `LiteralBasedProvider`, a simple Remote Metadata Adapter already included in the [Remote Java Adapters SDK](https://github.com/Lightstreamer/Lightstreamer-lib-adapter-java-remote) binaries, which is enough for all demo clients.
-See also [LiteralBasedProvider Metadata Adapter](https://github.com/Lightstreamer/Lightstreamer-lib-adapter-java-remote#literalbasedprovider-metadata-adapter).
+Ad depicted in the architecture diagram below, in this project the Remote Server opens a listening TCP port and Proxy Adapters connects to it.
 
-* `StockQuotesDataAdapter.java` is a porting of the class with the same name from the [Lightstreamer - Stock-List Demo - Java Adapter](https://github.com/Lightstreamer/Lightstreamer-example-StockList-adapter-java). 
-It implements the *DataProvider* interface and calls back Lightstreamer through the *ItemEventListener* interface. Use it as a starting point to implement your custom data adapter.
-It also implements the custom `ExternalFeedListener` interface to receive updates from the `ExternalFeedSimulator` instance (see next point)
-* `ExternalFeedSimulator.java` is the same exact class from the [Lightstreamer - Stock-List Demo - Java Adapter](https://github.com/Lightstreamer/Lightstreamer-example-StockList-adapter-java). It randomly generates the
-stock quotes used by the demo.
-* `ServerMain.java` is the main of the Remote Server application. It instantiates a DataProviderServer and a MetadataProviderServer and launches them using the `ServerStarter` class.
+![General Architecture](architecture.svg)
+
+This new approach enables a single Remote Server to handle connections from all Ligitstreamer servers, eliminating the need to predefine the number of Lightstreamer instances and their addresses in advance. The Remote Server will simple need to spawn new `DataProviderSever` and `MetadataProviderServer` for each new incoming connection.
+
+Moreover, it would also possible to setup a cluster of remote adapters behind a load balancer. This way, the two clusters can scale independently, allowing great flexibility and resources optimization.
+
+![General Architecture](cluster.svg)
+
+Following are the main differences with the original projects:
+1. [`ServerMain.java`](src/main/java/com/lightstreamer/example_StockList_adapter_java_remote/server/ServerMain.java) and [`ServerStarter.java`](src/main/java/com/lightstreamer/example_StockList_adapter_java_remote/server/ServerStarter.java) have been modified to accept multiple connections and associate to them new instances of `DataProviderServer` and a `MetadataProvider`.
+
+2. [`StockQuotesAdapter.java`](src/main/java/com/lightstreamer/example_StockList_adapter_java_remote/server/ServerMain.java) has been updated as well in order to share a single instance of [`ExternalFeedSimulator`](src/main/java/com/lightstreamer/example_StockList_adapter_java_remote/feed_simulator/ExternalFeedSimulator.java), which nows is responsible to push updates to multiple instances of the adapter.
 
 Check out the sources for further explanations.
 
-![General Architecture](generalarchitecture.png)
-
-The project supports two different policies for the connection with the Proxy Adapters on the Server.
-The normal connection policy, as also depicted in the architecture diagram above, consists in the Remote Server connecting to a listening TCP port opened by the Proxy Adapter.
-Another available policy is to invert the roles and have the Remote Server open a listening TCP port and the Proxy Adapter connect to it.
-The two options are implemented by the `ServerStarter` class and can be chosen via a command line argument, which affects both the Data Adapter and the Metadata Adapter connections.
-Obviously, each option can be chosen only provided that the Proxy Adapters on the Server are configured accordingly.
 
 ## Install
-
-### Install the demo in the normal way
-
-As said, in this case, the Remote Java Adapter Server will connect to the Proxy Adapters, not vice-versa.
-
-If you want to install a version of this demo in your local Lightstreamer server, follow these steps:
-* Download the [latest Lightstreamer distribution](http://www.lightstreamer.com/download/) (Lightstreamer Server comes with a free non-expiring demo license for 20 connected users) from [Lightstreamer Download page](http://www.lightstreamer.com/download.htm), and install it, as explained in the `GETTING_STARTED.TXT` file in the installation home directory.
-* Get the `deploy_normal.zip` file of the [latest release](https://github.com/Lightstreamer/Lightstreamer-example-StockList-adapter-java-remote/releases) and unzip it.
-    * Plug the Proxy Data Adapter and the Proxy MetaData Adapter into the Server: go to the `Deployment_LS` folder and copy the `RemoteStockList` directory and all of its files to the `adapters` folder of your Lightstreamer Server installation.
-    * Alternatively, you may plug the **robust** versions of the Proxy Data Adapter and the Proxy MetaData Adapter: go to the `Deployment_LS(robust)` folder and copy the `RemoteStockList` directory and all of its files into `adapters`. This Adapter Set demonstrates the provided "robust" versions of the standard Proxy Data and Metadata Adapters. The robust Proxy Data Adapter can handle the case in which a Remote Data Adapter is missing or fails, by suspending the data flow and trying to connect to a new Remote Data Adapter instance. The robust Proxy Metadata Adapter can handle the case in which a Remote Metadata Adapter is missing or fails, by temporarily denying all client requests and trying to connect to a new Remote Data Adapter instance. See the comments embedded in the provided [`adapters.xml` file template](https://lightstreamer.com/docs/ls-server/latest/remote_adapter_robust_conf_template/adapters.xml), for details. Note that this extended Adapter Set also requires that the client is able to manage the case of missing data. Currently, only the [Lightstreamer - Stock-List Demo - HTML Client](https://github.com/Lightstreamer/Lightstreamer-example-StockList-client-javascript#stocklist-demo) and the [Lightstreamer - Framed Stock-List Demo - HTML Client](https://github.com/Lightstreamer/Lightstreamer-example-StockList-client-javascript#framed-stocklist-demo) front-ends have such ability.
-    * Open a command line to the `Deployment_Java_Server` folder and launch the Java Remote Server through the proper `start_adapter` script or (in Windows) by issuing the following command:
-      ```sh
-          java -cp "./example-StockList-adapter-java-remote-0.1.0-SNAPSHOT.jar;./dependency/*" ^
-              com.lightstreamer.example_StockList_adapter_java_remote.server.ServerMain ^
-              -host localhost -metadata_rrport 6663 -data_rrport 6661
-      ```
-* Launch Lightstreamer Server. The Server startup will complete only after a successful connection between the Proxy Adapters and the Remote Adapters.
-* Test the Adapter, launching one of the [compatible clients](https://github.com/Lightstreamer?utf8=%E2%9C%93&q=lightstreamer-example-stocklist-client&type=&language=).
-    * To make the Stock-List Demo applications, use the newly installed Adapter Set, you need to modify the code to change the required Adapter Set name from DEMO to STOCKLISTDEMO_REMOTE. Depending on the client library in use, the code might vary (e.g., in JavaScript `new LightstreamerClient(hostToUse,"DEMO");` has to be replaced by `new LightstreamerClient(hostToUse, "STOCKLISTDEMO_REMOTE");`). (You don't need to reconfigure the Data Adapter name, as it is the same in both Adapter Sets).
-    * In case the JavaScript client is used, you might need to disable the connection sharing to avoid adapter sets conflicts (e.g., by removing or modifiyng `sharingClient.connectionSharing.enableSharing("DemoCommonConnection","ls/","SHARE_SESSION", true);`)
-You can now launch the demo that will be fed by the remote adapter.
-
-#### Available improvements
-
-##### Add Encryption
-
-Each TCP connection from a Remote Adapter can be encrypted via TLS. To have the Proxy Adapters accept only TLS connections, a suitable configuration should be added in adapters.xml in the <data_provider> block, like this:
-```xml
-  <data_provider>
-    ...
-    <param name="tls">Y</param>
-    <param name="tls.keystore.type">JKS</param>
-    <param name="tls.keystore.keystore_file">my_keystore_path</param>
-    <param name="tls.keystore.keystore_password.type">file</param>
-    <param name="tls.keystore.keystore_password">my_keystore_password_path</param>
-    ...
-  </data_provider>
-```
-and the same should be added in the <metadata_provider> block.
-This requires that a suitable keystore with a valid certificate is provided. See the configuration details in the [provided template](https://lightstreamer.com/docs/ls-server/latest/remote_adapter_robust_conf_template/adapters.xml).
-
-The sample Remote Server provided in the `Deployment_Java_Server` directory in `deploy_normal.zip` is already predisposed for TLS connection on all ports. You can rerun the demo with the new configuration by launching the Java Remote Server with a command like this:
-```sh
-    java -cp "./example-StockList-adapter-java-remote-0.1.0-SNAPSHOT.jar;./dependency/*" ^
-        com.lightstreamer.example_StockList_adapter_java_remote.server.ServerMain ^
-        -host xxxxxxxx -tls -metadata_rrport 6663 -data_rrport 6661
-```
-where the same hostname supported by the provided certificate must be supplied.
-
-NOTE: For your experiments, you can configure the adapters.xml to use the same JKS keystore "myserver.keystore" provided out of the box in the Lightstreamer distribution.
-Since this keystore contains an invalid certificate, the Remote Server should be configured to "trust" it and to omit certificate hostname verification.
-Since the sample code in the `ServerStarter` class leans on the JDK implementation, trusted certificates information can be provided on the command line through the JSSE system properties `javax.net.ssl.trustStore` and `javax.net.ssl.trustStorePassword`.
-Hostname verification is done by the `ServerStarter` class directly and can be suppressed via command line.
-The command to be issued should be of this form:
-```sh
-    java -cp "./example-StockList-adapter-java-remote-0.1.0-SNAPSHOT.jar;./dependency/*" ^
-        -Djavax.net.ssl.trustStore=<path-to-myserver.keystore> -Djavax.net.ssl.trustStorePassword=<see-myserver.keypass> ^
-        com.lightstreamer.example_StockList_adapter_java_remote.server.ServerMain ^
-        -host localhost -tls noverify -metadata_rrport 6663 -data_rrport 6661
-```
-
-##### Add Authentication
-
-Each TCP connection from a Remote Adapter can be subject to Remote Adapter authentication through the submission of user/password credentials. To enforce credential check on the Proxy Adapters, a suitable configuration should be added in adapters.xml in the <data_provider> block, like this:
-```xml
-  <data_provider>
-    ...
-    <param name="auth">Y</param>
-    <param name="auth.credentials.1.user">user1</param>
-    <param name="auth.credentials.1.password">pwd1</param>
-    ...
-  </data_provider>
-```
-and the same should be added in the <metadata_provider> block.
-
-See the configuration details in the [provided template](https://lightstreamer.com/docs/ls-server/latest/remote_adapter_robust_conf_template/adapters.xml).
-The sample Remote Server provided in the `Deployment_Java_Server` directory in `deploy_normal.zip` is already predisposed for credential submission on both adapters. You can rerun the demo with the new configuration by launching the Java Remote Server with a command like this:
-```sh
-    java -cp "./example-StockList-adapter-java-remote-0.1.0-SNAPSHOT.jar;./dependency/*" ^
-        com.lightstreamer.example_StockList_adapter_java_remote.server.ServerMain ^
-        -host localhost -user user1 -password pwd1 -metadata_rrport 6663 -data_rrport 6661
-```
-
-Authentication can (and should) be combined with TLS encryption.
-In the TLS case, the Proxy Adapter can further enforce authentication by requiring that the Remote Server issues a trusted client-side TLS certificate. This can be done by adding
-```xml
-    <param name="tls.force_client_auth">Y</param>
-```
-in the <data_provider> and/or <metadata_provider> block.
 
 ### Install the demo with the connection inversion option
 
