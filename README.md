@@ -6,7 +6,7 @@ As example of [Clients Using This Adapter](https://github.com/Lightstreamer?utf8
 
 ## Details
 
-Ad depicted in the architecture diagram below, in this project the Remote Server opens a listening TCP port and Proxy Adapters connects to it.
+As depicted in the architecture diagram below, in this project the Remote Server opens a listening TCP port and Proxy Adapters connects to it.
 
 ![General Architecture](architecture.svg)
 
