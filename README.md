@@ -44,7 +44,7 @@ The `k8s` folder holds the all of the manifests needed to create the resources o
 
    where the image will be feteched from a local Docker registry. While tipically not necessary in a production deployment, this greatly simplifies the setup of a locally running k8s cluster, as you won't have to pre-publish a Docker image to a remote registry.
 
-- [`stocklist-service.yaml`](k8s/stocklist-service.yaml), the service to expose the StockList Remote Adapter deployment to the Ligthstreamer pods
+- [`stocklist-service.yaml`](k8s/stocklist-service.yaml), the service to expose the StockList Remote Adapter deployment to the Lightstreamer pods.
 
 - [`lightstreamer-deployment.yaml`](k8s/lightstreamer-deployment.yaml), the Lightstreamer deployment, which is made of three replicas.
 
