@@ -1,0 +1,16 @@
+# Ingress managing external accesss to the Lightstreamer service
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: lightstreamer-ingress
+spec:
+  rules:
+  - http:
+      paths:
+      - backend:
+          service:
+            name: lightstreamer
+            port:
+              number: 8080
+        path: /
+        pathType: Prefix

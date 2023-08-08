@@ -1,0 +1,27 @@
+# Deployment of the StockList Remote Java adapter
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stocklist-deployment
+  labels:
+    app: stocklist
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: stocklist
+  template:
+    metadata:
+      labels:
+        app: stocklist
+    spec:
+      containers:
+      - name: stocklist
+        image: ls-cluster-registry:5000/stocklist-remote-adapter
+        ports:
+          # The Metadata Provider server port
+          - name: metadata-port
+            containerPort: 6663
+          # The Data Provider server port
+          - name: data-port
+            containerPort: 6661

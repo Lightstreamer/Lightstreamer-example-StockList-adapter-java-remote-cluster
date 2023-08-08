@@ -1,0 +1,29 @@
+# Deployment of the Lightstreamer server cluster
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lightstreamer-deployment
+  labels:
+    app: lightstreamer
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: lightstreamer
+  template:
+    metadata:
+      labels:
+        app: lightstreamer
+    spec:
+      containers:
+      - name: lightstreamer
+        image: lightstreamer
+        ports:
+          - containerPort: 8080
+        volumeMounts:
+          - name: adapters-volume
+            mountPath: /lightstreamer/adapters/RemoteStockList
+      volumes:
+        - name: adapters-volume
+          configMap: 
+            name: adapters

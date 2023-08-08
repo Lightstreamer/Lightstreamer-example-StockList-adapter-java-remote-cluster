@@ -1,0 +1,13 @@
+namespace: lightstreamer-dev
+resources:
+  - namespace.yaml
+  - stocklist-deployment.yaml
+  - stocklist-service.yaml
+  - lightstreamer-deployment.yaml
+  - lightstreamer-service.yaml
+  - lightstreamer-ingress.yaml
+# The generator is required to create a configmap starting from the adapters.xml
+configMapGenerator:
+- name: adapters
+  files:
+  - adapters.xml

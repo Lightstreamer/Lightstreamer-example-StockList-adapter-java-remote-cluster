@@ -1,0 +1,6 @@
+*.png
+target/
+.git*
+.settings
+.project
+.classpath
