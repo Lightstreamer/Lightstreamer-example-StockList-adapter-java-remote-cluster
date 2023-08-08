@@ -70,9 +70,9 @@ The `k8s` folder holds the all of the manifests needed to create the resources o
 
 You need the following software installed on your machine:
 
-- docker
-- kubectl
-- k3d
+- [docker](https://www.docker.com/)
+- [kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl)
+- [k3d](https://k3d.io)
 
 ### Create the Kuberneted Cluster
 
@@ -208,7 +208,7 @@ Ations Europe: 16.4
 
 ### Clean Up
 
-Run the following to clean up all the kubernetes and docker resources:
+Run the following to clean up all the Kubernetes and Docker resources:
 
 1. Delete the k3d cluster:
    
@@ -222,7 +222,7 @@ Run the following to clean up all the kubernetes and docker resources:
    docker rmi registry:2
    ```
 
-3. Delete the StockList Remote Adapter docker image:
+3. Delete the StockList Remote Adapter Docker image:
 
    ```sh
    docker rmi localhost:5000/stocklist-remote-adapter
