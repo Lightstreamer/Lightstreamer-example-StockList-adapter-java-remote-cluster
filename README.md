@@ -152,7 +152,7 @@ lightstreamer-deployment   3/3     3            3           7m2s
 Verify the status of the services:
 
 ```sh
- kubectl get service -n lightstreamer-dev
+kubectl get service -n lightstreamer-dev
 
 NAME            TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)             AGE
 lightstreamer   ClusterIP   10.43.29.108   <none>        8080/TCP            1m49s
