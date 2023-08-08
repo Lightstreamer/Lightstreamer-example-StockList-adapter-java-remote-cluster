@@ -10,9 +10,9 @@ As depicted in the architecture diagram below, in this project the Remote Server
 
 ![General Architecture](architecture.svg)
 
-This new approach enables a single Remote Server to handle connections from all Ligitstreamer servers in a custer, eliminating the need to predefine the number of Lightstreamer instances and their addresses in advance. The Remote Server will simply need to spawn new `DataProviderSever` and `MetadataProviderServer` for each new incoming connection.
+This new approach enables a single Remote Server to handle connections from all Ligitstreamer servers in a cluster, eliminating the need to predefine the number of Lightstreamer instances and their addresses in advance. The Remote Server will simply need to spawn new `DataProviderSever` and `MetadataProviderServer` for each new incoming connection.
 
-Moreover, it would also be possible to set up a cluster of remote adapters behind a load balancer. This way, the two clusters can scale independently, allowing great flexibility and resources optimization.
+Moreover, it would also be possible to set up a cluster of remote adapters behind a load balancer. This way, the two clusters can scale independently, allowing great flexibility and resource optimization.
 
 ![Cluster Architecture](cluster.svg)
 
