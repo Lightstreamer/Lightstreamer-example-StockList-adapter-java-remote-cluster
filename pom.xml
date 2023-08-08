@@ -24,26 +24,33 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.1</version>
       </plugin>
-      
+
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>1.2.1</version>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifest>
+              <mainClass>com.lightstreamer.example_StockList_adapter_java_remote.server.ServerMain</mainClass>
+            </manifest>
+          </archive>
+          <descriptorRefs>
+              <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+        </configuration>
         <executions>
           <execution>
+            <phase>package</phase>
             <goals>
-              <goal>java</goal>
+              <goal>single</goal>
             </goals>
           </execution>
         </executions>
-        <configuration>
-          <mainClass>com.lightstreamer.example_StockList_adapter_java_remote.server.ServerMain</mainClass>
-        </configuration>
-      </plugin>
-         
+    </plugin>
+
     </plugins>
   </build>
-  
+
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
@@ -62,5 +69,5 @@
       <version>1.0.2</version>
     </dependency>
   </dependencies>
-  
+
 </project>
