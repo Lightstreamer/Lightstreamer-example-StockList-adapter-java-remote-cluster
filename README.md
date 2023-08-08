@@ -208,7 +208,7 @@ Ations Europe: 16.4
 
 ### Clean Up
 
-Run the following to clean up all the resources:
+Run the following to clean up all the kubernetes and docker resources:
 
 1. Delete the k3d cluster:
    
