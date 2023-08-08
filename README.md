@@ -1,6 +1,6 @@
-# Lightstreamer - Stock-List Inversion Demo - Java Remote Adapter
+# Lightstreamer - Stock-List Clustered Demo - Java Remote Adapter
 
-The Stock-List Inversion demo is a specialised version of the [Lightstreamer - Stock-List Demo - Java Remote Adapter](https://github.com/Lightstreamer/Lightstreamer-example-StockList-adapter-java-remote), where the connection inversion options is shown.
+The Stock-List Cluster demo is a specialised version of the [Lightstreamer - Stock-List Demo - Java Remote Adapter](https://github.com/Lightstreamer/Lightstreamer-example-StockList-adapter-java-remote), where the connection inversion options is shown.
 
 As example of [Clients Using This Adapter](https://github.com/Lightstreamer?utf8=%E2%9C%93&q=lightstreamer-example-stocklist-client&type=&language=), you may refer to the [Lightstreamer - Basic Stock-List Demo - HTML Client](https://github.com/Lightstreamer/Lightstreamer-example-StockList-client-javascript#basic-stock-list-demo---html-client) and view the corresponding [Live Demo](http://demos.lightstreamer.com/StockListDemo_Basic).
 
