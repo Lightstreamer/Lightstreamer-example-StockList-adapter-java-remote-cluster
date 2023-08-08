@@ -1,4 +1,4 @@
-# Lightstreamer - Stock-List Clustered Demo - Java Remote Adapter
+# Lightstreamer - Stock-List Cluster  Demo - Java Remote Adapter
 
 The Stock-List Cluster demo is a specialised version of the [Lightstreamer - Stock-List Demo - Java Remote Adapter](https://github.com/Lightstreamer/Lightstreamer-example-StockList-adapter-java-remote), where the connection inversion options is shown.
 
@@ -14,7 +14,7 @@ This new approach enables a single Remote Server to handle connections from all 
 
 Moreover, it would also possible to setup a cluster of remote adapters behind a load balancer. This way, the two clusters can scale independently, allowing great flexibility and resources optimization.
 
-![General Architecture](cluster.svg)
+![Cluster Architecture](cluster.svg)
 
 Following are the main differences with the original projects:
 1. [`ServerMain.java`](src/main/java/com/lightstreamer/example_StockList_adapter_java_remote/server/ServerMain.java) and [`ServerStarter.java`](src/main/java/com/lightstreamer/example_StockList_adapter_java_remote/server/ServerStarter.java) have been modified to accept multiple connections and associate to them new instances of `DataProviderServer` and a `MetadataProvider`.
@@ -24,94 +24,186 @@ Following are the main differences with the original projects:
 Check out the sources for further explanations.
 
 
-## Install
+## Deploy to Lightweight Kubernetes Distribution
 
-As said, the Proxy Adapters will connect to the Remote Java Adapter Server, not vice-versa.
-This Requires a specific configuration on Lightstreamer Server in adapters.xml, where
-```xml
-    <param name="remote_host">localhost</param>
-```
-is added in the <data_provider> or <metadata_provider> block corresponding to each Proxy Adapter.
+In this section, we show how to deploy the following architecture to [k3d](https://k3d.io/), a lightweight Kubernetes distribution which is very easy to configure and use
 
-If you want to install a version of this demo in your local Lightstreamer server, follow these steps:
-* Download the [latest Lightstreamer distribution](http://www.lightstreamer.com/download/) (Lightstreamer Server comes with a free non-expiring demo license for 20 connected users) from [Lightstreamer Download page](http://www.lightstreamer.com/download.htm), and install it, as explained in the `GETTING_STARTED.TXT` file in the installation home directory.
-* Get the `deploy_inverted.zip` file of the [latest release](https://github.com/Lightstreamer/Lightstreamer-example-StockList-adapter-java-remote/releases) and unzip it.
-    * Plug the Proxy Data Adapter and the Proxy MetaData Adapter into the Server: go to the `Deployment_LS` folder and copy the `RemoteStockList` directory and all of its files to the `adapters` folder of your Lightstreamer Server installation.
-    * Alternatively, you may plug the **robust** versions of the Proxy Data Adapter and the Proxy MetaData Adapter: go to the `Deployment_LS(robust)` folder and copy the `RemoteStockList` directory and all of its files into `adapters`. This Adapter Set demonstrates the provided "robust" versions of the standard Proxy Data and Metadata Adapters. The robust Proxy Data Adapter can handle the case in which a Remote Data Adapter is missing or fails, by suspending the data flow and trying to connect to a new Remote Data Adapter instance. The robust Proxy Metadata Adapter can handle the case in which a Remote Metadata Adapter is missing or fails, by temporarily denying all client requests and trying to connect to a new Remote Data Adapter instance. See the comments embedded in the provided [`adapters.xml` file template](https://lightstreamer.com/docs/ls-server/latest/remote_adapter_robust_conf_template/adapters.xml), for details. Note that this extended Adapter Set also requires that the client is able to manage the case of missing data. Currently, only the [Lightstreamer - Stock-List Demo - HTML Client](https://github.com/Lightstreamer/Lightstreamer-example-StockList-client-javascript#stocklist-demo) and the [Lightstreamer - Framed Stock-List Demo - HTML Client](https://github.com/Lightstreamer/Lightstreamer-example-StockList-client-javascript#framed-stocklist-demo) front-ends have such ability.
-    * Open a command line to the `Deployment_Java_Server` folder and launch the Java Remote Server through the proper `start_adapter` script or (in Windows) by issuing the following command:
-      ```sh
-          java -cp "./example-StockList-adapter-java-remote-0.1.0-SNAPSHOT.jar;./dependency/*" ^
-              com.lightstreamer.example_StockList_adapter_java_remote.server.ServerMain ^
-              -metadata_rrport 6663 -data_rrport 6661
-      ```
-* Launch Lightstreamer Server. The Server startup will complete only after a successful connection between the Proxy Adapters and the Remote Adapters.
-* Test the Adapter, launching one of the [compatible clients](https://github.com/Lightstreamer?utf8=%E2%9C%93&q=lightstreamer-example-stocklist-client&type=&language=).
-    * To make the Stock-List Demo applications, use the newly installed Adapter Set, you need to modify the code to change the required Adapter Set name from DEMO to STOCKLISTDEMO_REMOTE. Depending on the client library in use, the code might vary (e.g., in JavaScript `new LightstreamerClient(hostToUse,"DEMO");` has to be replaced by `new LightstreamerClient(hostToUse, "STOCKLISTDEMO_REMOTE");`). (You don't need to reconfigure the Data Adapter name, as it is the same in both Adapter Sets).
-    * In case the JavaScript client is used, you might need to disable the connection sharing to avoid adapter sets conflicts (e.g., by removing or modifiyng `sharingClient.connectionSharing.enableSharing("DemoCommonConnection","ls/","SHARE_SESSION", true);`)
-You can now launch the demo that will be fed by the remote adapter.
+![Cluster Architecture](k8s-cluster.svg)
 
-### Available improvements
+This example can be used as a minimal starting point to set up a production-ready deployment for a more complex infrastructure hosted by a major cloud provider (AWS, GCP, Azure, etc.).
 
-#### Add Encryption
+### Overview
 
-Each TCP connection from a Proxy Adapter can be encrypted via TLS. To have the Remote Server accept only TLS connections, a suitable keystore with a valid certificate should be provided to the Remote Server.
-The sample code in the `ServerStarter` class supports this case by leaning on the JDK implementation, hence keystore information can be provided on the command line through the JSSE system properties `javax.net.ssl.keyStore` and `javax.net.ssl.keyStorePassword`.
-The sample Remote Server provided in the `Deployment_Java_Server` directory in `deploy_inverted.zip` is already predisposed for TLS connection on all ports. You can rerun the demo with the new configuration by launching the Java Remote Server with a command like this:
+The `k8s` folder holds the all of the manifests needed to create the resources of the demo cluster:
+
+- `stocklist-deployment.yaml`, the StockList Remote Adapter deployment, which is made of two replicas. In particular, pay attention to the following setting:
+
+   ```yaml
+   image: ls-cluster-registry:5000/stocklist-remote-adapter
+   ```
+
+   where the image will be feteched from a local Docker registry. While tipically not necessary in a production deployment, this greatly simplifies the setup of a locally running k8s cluster, as you won't have to pre-publish a Docker image to a remote registry.
+
+- `stocklist-service.yaml`, the service to expose the StockList Remote Adapter deployment to the Ligthstreamer pods.
+- `lightstreamer-deployment.yaml`, the Lightstreamer deployment, which is made of three replicas.
+- `lightstreamer-service.yaml`, the service to expose the Lightstreamer deployment.
+- `adapters.xml`, the Adapter Set configuration file, which will be provided as a config map mounted to every pod of the Lightstreamer deployment.
+
+  Since the Proxy Adapters will connect to the Remote Java Adapter Server, not vice-versa, the following specific configuration is added in the `<data_provider>` and `<metadata_provider>` blocks:
+
+  ```xml
+   <param name="remote_host">stocklist.lightstreamer-dev.svc.cluster.local</param>
+  ```
+
+  where `stocklist.lightstreamer-dev.svc.cluster.local` is the internal DNS name assigned to the StockList service defined in `stocklist-service.yaml`.
+
+- `lightsteamer-ingress.yaml`, the ingress to manange external access to the Lightstreamer service. Through this manifest, the Lightstreamer service can be contacted from localhost thanks to an out-of-box feature of k3d.
+- `namespace.yaml`, the definition of the `lightstreamer-dev` namespace.
+- `kustomization.yaml`, the _kustomization_ file, which is used to apply all the above resources.
+
+### Requirements
+
+You need the following software installed on your machine:
+
+- docker
+- kubectl
+- k3d
+
+### Create the Kuberneted Cluster
+
+Create a cluster named `ls-cluster` and add the flags to:
+
+1. Set up a local Docker registry to publish the image of the StockList Remote Adapter.
+2. Make the Lightstreamer service accessible through `localhost:8080` via the ingress defined in `lightsteamer-ingress.yaml` (see [here](https://k3d.io/v5.5.2/usage/exposing_services/) for more information).
+
 ```sh
-    java -cp "./example-StockList-adapter-java-remote-0.1.0-SNAPSHOT.jar;./dependency/*" ^
-        -Djavax.net.ssl.keyStore=<path-to-keystore> -Djavax.net.ssl.keyStorePassword=<keystore-password> ^
-        com.lightstreamer.example_StockList_adapter_java_remote.server.ServerMain ^
-        -tls -metadata_rrport 6663 -data_rrport 6661
+k3d cluster create ls-cluster --registry-create ls-cluster-registry:0.0.0.0:5000 -p "8080:80@loadbalancer"
 ```
 
-A corresponding configuration is needed on Lightstreamer Server in adapters.xml. Just add
-```xml
-    <param name="tls">Y</param>
-```
-in both the <data_provider> and <metadata_provider> block and ensure that the name in the `remote_host` parameter corresponds to the name on the certificate.
+Verify the cluster with:
 
-NOTE: For your experiments, you can specify to the Remote Server to use the same JKS keystore "myserver.keystore" provided out of the box in the Lightstreamer distribution.
-Since this keystore contains an invalid certificate, the Proxy Adapter should be configured to "trust" it and to omit certificate hostname verification.
-This can be done by adding suitable parameters in adapters.xml in the <data_provider> and <metadata_provider> block, like this:
-```xml
-    <param name="tls.truststore.type">JKS</param>
-    <param name="tls.truststore.truststore_file">path-to-myserver.keystore</param>
-    <param name="tls.truststore.truststore_password.type">file</param>
-    <param name="tls.truststore.truststore_password">path-to-myserver.keypass</param>
-    <param name="tls.skip_hostname_check">Y</param>
-```
-See the configuration details in the [provided template](https://lightstreamer.com/docs/ls-server/latest/remote_adapter_robust_conf_template/adapters.xml).
-
-#### Add Authentication
-
-The Proxy Adapter can authenticate the Remote Server through user/password credentials in the same way shown for the normal connection policy.
-However, with the connection inversion policy, the TLS certificate check performed by the Proxy Adapter upon connection can also be used to authenticate the Remote Server.
-On the other hand, to allow the Remote Server authenticate a Proxy Adapter which connects to it, no user/password credential check is available.
-The only option is for the Remote Server to require that the Proxy Adapter issues a trusted client-side TLS certificate. The needed certificate can be configured on the Proxy Adapter by leveraging the `tls.keystore.*` settings.
-
-Actually, when the inversion policy is leveraged, it is assumed a scenario in which LS Server and the Remote Server both stay inside the back-end.
-If LS Server stays in a DMZ (not to mention the outer Internet), which implies allowing on the back-end incoming connections from the DMZ, the inversion policy is not recommended;
-rather, we recommend the normal connection policy, where only outgoing connections from the back-end to the DMZ have to be enabled.
-
-## Build
-
-To build your own version of this demo, instead of using the one provided in the deploy.zip file from the Install section above, you have two options:
-either use [Maven](https://maven.apache.org/) (or other build tools) to take care of dependencies and building (recommended) or gather the necessary jars yourself and build it manually.
-For the sake of simplicity only the Maven case is detailed here.
-
-### Maven
-
-You can easily build and run this application using Maven through the pom.xml file located in the root folder of this project. As an alternative, you can use an alternative build tool (e.g. Gradle, Ivy, etc.) by converting the provided pom.xml file.
-
-Assuming Maven is installed and available in your path you can build the demo by running
 ```sh
- mvn package
+kubectl cluster-info
+
+Kubernetes control plane is running at https://0.0.0.0:46353
+CoreDNS is running at https://0.0.0.0:46353/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+Metrics-server is running at https://0.0.0.0:46353/api/v1/namespaces/kube-system/services/https:metrics-server:https/proxy
 ```
 
-You can also run the application with the following command
+## Build and Publish the Docker Image.
+
+From the project root, build the Docker image of the StockList Remote Adapter.
+
 ```sh
- mvn exec:java -Dexec.args="-metadata_rrport 6663 -data_rrport 6661"
+docker build . -t stocklist-remote-adapter
 ```
+
+In order to keep the size of the image small, the Dockerfile has ben structured to leverage the _multistage-builds_ feature: a Maven-based image builds the jar file, which will be then copied to the final java-based imge.
+
+Perform the following commands to publich the Docker image to the local registry:
+
+```sh
+docker tag stocklist-remote-adapter localhost:5000/stocklist-remote-adapter
+docker push localhost:5000/stocklist-remote-adapter
+```
+
+Verify the images with:
+
+```sh
+docker image ls
+
+REPOSITORY                                TAG            IMAGE ID       CREATED        SIZE
+stocklist-remote-adapter                  latest         64ab7867e2b8   18 hours ago   390MB
+localhost:5000/stocklist-remote-adapter   latest         64ab7867e2b8   18 hours ago   390MB
+...
+```
+
+### Create the Resources
+
+Move to the `k8s` folder and run:
+
+```sh
+kubectl apply -k .
+
+namespace/lightstreamer-dev created
+configmap/adapters-685574d454 created
+service/lightstreamer created
+service/stocklist created
+deployment.apps/lightstreamer-deployment created
+deployment.apps/stocklist-deployment created
+ingress.networking.k8s.io/lightstreamer-ingress created
+```
+
+### Connect to the Cluster
+
+To verify that the cluster has been properly deployed, let's use the [Lightstreamer - Basic Stock-List Demo - Node.js Client](https://github.com/Lightstreamer/Lightstreamer-example-StockList-client-node) client, which is already configured to connect to a Lightstreamer server listening on `localhost:8080`.
+
+1. Make sure that `nodejs` and `npm` are installed in your local machine.
+
+2. Clone the project:
+
+   ```sh
+   https://github.com/Lightstreamer/Lightstreamer-example-StockList-client-node.git
+   ```
+
+3. Move to the project folder and install the client with:
+
+   ```sh
+   npm install
+   ```
+
+4. Run the client:
+
+   ```sh
+   node src/index.js
+   ```
+
+Finally, verify that the updates flow as expected:
+
+```sh
+Ations Europe: 15.94
+Anduct: 3.0
+Bagies Consulting: 6.96
+Ations Europe: 17.1
+Bagies Consulting: 6.97
+Bagies Consulting: 7.29
+Ations Europe: 15.97
+Ations Europe: 17.06
+Ations Europe: 16.13
+Ations Europe: 16.96
+Ations Europe: 16.13
+Ations Europe: 16.8
+Ations Europe: 16.29
+Ations Europe: 16.71
+Ations Europe: 16.66
+Bagies Consulting: 6.97
+Ations Europe: 16.4
+...
+```
+
+### Clean Up
+
+Run the following to clean up all the resources:
+
+1. Delete the k3d cluster:
+   
+   ```sh
+   k3d cluster delete ls-cluster
+   ```
+   
+2. Delete the local Docker registry:
+
+   ```sh
+   docker rmi registry:2
+   ```
+
+3. Delete the StockList Remote Adapter docker image:
+
+   ```sh
+   docker rmi localhost:5000/stocklist-remote-adapter
+   docker rmi stocklist-remote-adapter
+   ```
+
 
 ## See Also
 * [Adapter Remoting Infrastructure Network Protocol Specification](https://lightstreamer.com/api/ls-generic-adapter/latest/ARI%20Protocol.pdf)
@@ -124,7 +216,3 @@ You can also run the application with the following command
 ## Lightstreamer Compatibility Notes
 
 * Compatible with Lightstreamer SDK for Java Remote Adapters version 1.7 or newer and Lightstreamer Server version 7.4 or newer.
-- For a version of this example compatible with Lightstreamer Server version since 7.0, please refer to [this tag](https://github.com/Lightstreamer/Lightstreamer-example-StockList-adapter-java-remote/tree/for_Lightstreamer_7.3).
-- For a version of this example compatible with SDK for Java Remote Adapters 1.4 to 1.6, please refer to [this tag](https://github.com/Lightstreamer/Lightstreamer-example-StockList-adapter-java-remote/tree/for_Lightstreamer_7.3).
-- For a version of this example compatible with SDK for Java Remote Adapters 1.3 please refer to [this tag](https://github.com/Lightstreamer/Lightstreamer-example-StockList-adapter-java-remote/tree/for_release_1.3).
-- For a version of this example compatible with SDK for Java Remote Adapters 1.1 to 1.2 please refer to [this tag](https://github.com/Lightstreamer/Lightstreamer-example-StockList-adapter-java-remote/tree/for_Lightstreamer_7.0).
