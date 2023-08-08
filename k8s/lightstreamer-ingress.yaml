@@ -2,14 +2,14 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: lightstreamer-ingress
+  name: Lightstreamer-ingress
 spec:
   rules:
   - http:
       paths:
       - backend:
           service:
-            name: lightstreamer
+            name: Lightstreamer
             port:
               number: 8080
         path: /

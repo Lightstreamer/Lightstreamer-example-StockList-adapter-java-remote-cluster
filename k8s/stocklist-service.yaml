@@ -2,10 +2,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: stocklist
+  name: StockList
 spec:
   selector:
-    app: stocklist
+    app: StockList
   type: ClusterIP
   ports:
     - name: metadata

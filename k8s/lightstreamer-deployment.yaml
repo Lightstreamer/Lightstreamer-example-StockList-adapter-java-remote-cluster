@@ -2,18 +2,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: lightstreamer-deployment
+  name: Lightstreamer-deployment
   labels:
-    app: lightstreamer
+    app: Lightstreamer
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: lightstreamer
+      app: Lightstreamer
   template:
     metadata:
       labels:
-        app: lightstreamer
+        app: Lightstreamer
     spec:
       containers:
       - name: lightstreamer

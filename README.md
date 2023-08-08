@@ -36,7 +36,7 @@ This example can be used as a minimal starting point to set up a production-read
 
 The `k8s` folder holds the all of the manifests needed to create the resources of the demo cluster:
 
-- `stocklist-deployment.yaml`, the StockList Remote Adapter deployment, which is made of two replicas. In particular, pay attention to the following setting:
+- [`stocklist-deployment.yaml`](k8s/stocklist-deployment.yaml), the StockList Remote Adapter deployment, which is made of two replicas. In particular, pay attention to the following setting:
 
    ```yaml
    image: ls-cluster-registry:5000/stocklist-remote-adapter
@@ -44,10 +44,13 @@ The `k8s` folder holds the all of the manifests needed to create the resources o
 
    where the image will be feteched from a local Docker registry. While tipically not necessary in a production deployment, this greatly simplifies the setup of a locally running k8s cluster, as you won't have to pre-publish a Docker image to a remote registry.
 
-- `stocklist-service.yaml`, the service to expose the StockList Remote Adapter deployment to the Ligthstreamer pods.
-- `lightstreamer-deployment.yaml`, the Lightstreamer deployment, which is made of three replicas.
-- `lightstreamer-service.yaml`, the service to expose the Lightstreamer deployment.
-- `adapters.xml`, the Adapter Set configuration file, which will be provided as a config map mounted to every pod of the Lightstreamer deployment.
+- [`stocklist-service.yaml`](k8s/stocklist-service.yaml), the service to expose the StockList Remote Adapter deployment to the Ligthstreamer pods
+
+- [`lightstreamer-deployment.yaml`](k8s/lightstreamer-deployment.yaml), the Lightstreamer deployment, which is made of three replicas.
+
+- [`lightstreamer-service.yaml`](k8s/lightstreamer-service.yaml), the service to expose the Lightstreamer deployment.
+
+- [`adapters.xml`](k8s/adapters.xml), the _Adapter Set_ configuration file, which will be provided as a config map mounted to every pod of the Lightstreamer deployment.
 
   Since the Proxy Adapters will connect to the Remote Java Adapter Server, not vice-versa, the following specific configuration is added in the `<data_provider>` and `<metadata_provider>` blocks:
 
@@ -57,9 +60,11 @@ The `k8s` folder holds the all of the manifests needed to create the resources o
 
   where `stocklist.lightstreamer-dev.svc.cluster.local` is the internal DNS name assigned to the StockList service defined in `stocklist-service.yaml`.
 
-- `lightsteamer-ingress.yaml`, the ingress to manange external access to the Lightstreamer service. Through this manifest, the Lightstreamer service can be contacted from localhost thanks to an out-of-box feature of k3d.
-- `namespace.yaml`, the definition of the `lightstreamer-dev` namespace.
-- `kustomization.yaml`, the _kustomization_ file, which is used to apply all the above resources.
+- [`lightsteamer-ingress.yaml`](k8s/lightstreamer-ingress.yaml), the ingress to manange external access to the Lightstreamer service.
+
+- [`namespace.yaml`](k8s/namespace.yaml), the definition of the `lightstreamer-dev` namespace.
+
+- [`kustomization.yaml`](k8s/kustomization.yaml), the _kustomization_ file, which is used to apply all the above resources.
 
 ### Requirements
 

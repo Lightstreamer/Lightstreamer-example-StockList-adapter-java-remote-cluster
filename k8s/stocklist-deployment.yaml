@@ -2,21 +2,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: stocklist-deployment
+  name: StockList-deployment
   labels:
-    app: stocklist
+    app: StockList
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: stocklist
+      app: StockList
   template:
     metadata:
       labels:
-        app: stocklist
+        app: StockList
     spec:
       containers:
-      - name: stocklist
+      - name: StockList
         image: ls-cluster-registry:5000/stocklist-remote-adapter
         ports:
           # The Metadata Provider server port
