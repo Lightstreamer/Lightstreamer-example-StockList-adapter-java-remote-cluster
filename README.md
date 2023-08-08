@@ -103,9 +103,9 @@ From the project root, build the Docker image of the StockList Remote Adapter.
 docker build . -t stocklist-remote-adapter
 ```
 
-In order to keep the size of the image small, the Dockerfile has ben structured to leverage the _multistage-builds_ feature: a Maven-based image builds the jar file, which will be then copied to the final java-based imge.
+In order to keep the size of the image small, the Dockerfile has ben structured to leverage the _multistage-builds_ feature: a Maven-based image builds the jar file, which will be then copied to the final java-based image.
 
-Perform the following commands to publich the Docker image to the local registry:
+Perform the following commands to publish the Docker image to the local registry:
 
 ```sh
 docker tag stocklist-remote-adapter localhost:5000/stocklist-remote-adapter
@@ -137,6 +137,26 @@ service/stocklist created
 deployment.apps/lightstreamer-deployment created
 deployment.apps/stocklist-deployment created
 ingress.networking.k8s.io/lightstreamer-ingress created
+```
+
+Verify the status of the deployments:
+
+```sh
+kubectl get deploy -n lightstreamer-dev
+
+NAME                       READY   UP-TO-DATE   AVAILABLE   AGE
+stocklist-deployment       2/2     2            2           5m2s
+lightstreamer-deployment   3/3     3            3           7m2s
+```
+
+Verify the status of the services:
+
+```sh
+ kubectl get service -n lightstreamer-dev
+
+NAME            TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)             AGE
+lightstreamer   ClusterIP   10.43.29.108   <none>        8080/TCP            1m49s
+stocklist       ClusterIP   10.43.19.73    <none>        6663/TCP,6661/TCP   2m28s
 ```
 
 ### Connect to the Cluster

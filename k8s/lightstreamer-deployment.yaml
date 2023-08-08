@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: Lightstreamer-deployment
+  name: lightstreamer-deployment
   labels:
     app: Lightstreamer
 spec:
