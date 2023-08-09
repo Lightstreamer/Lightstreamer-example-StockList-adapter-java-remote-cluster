@@ -74,7 +74,7 @@ You need the following software installed on your machine:
 - [kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl)
 - [k3d](https://k3d.io)
 
-### Create the Kuberneted Cluster
+### Create the Kubernetes Cluster
 
 Create a cluster named `ls-cluster` and add the flags to:
 
