@@ -8,17 +8,17 @@ As example of [Clients Using This Adapter](https://github.com/Lightstreamer?utf8
 
 Normally, with Remote Lightstreamer Adapters, the Lightstreamer Server opens listening TCP ports to which the Remote Adapters connect.
 
-![Classic Architecture](classic-architecture.svg)
+![Classic Architecture](classic-architecture.png)
 
 However, there exist cases where it would be more flexible to invert the connections and allow the Lightstreamer Server to connect to the  Remote Adapters. By doing this, it is possible to have a single Remote Adapter serving multiple Lightstreamer Servers.
 
-![Inverted Architecture](inverted-architecture.svg)
+![Inverted Architecture](inverted-architecture.png)
 
 By eliminating the need to predefine the number of Lightstreamer instances and their addresses in advance, this new approach enables a single Remote Server to handle connections from all the Ligitstreamer servers in a cluster. The Remote Adapter will simply need to spawn new `DataProviderSever` and `MetadataProviderServer` for each new incoming connection.
 
 Moreover, it is also be possible to set up a cluster of Remote Adapters behind a load balancer. This way, the Lightstreamer Server cluster and the Remote Adapter clusters can scale independently in a fully elastic way.
 
-![Cluster Architecture](cluster-architecture.svg)
+![Cluster Architecture](cluster-architecture.png)
 
 Following are the main differences with the original projects:
 1. [`ServerMain.java`](src/main/java/com/lightstreamer/example_StockList_adapter_java_remote/server/ServerMain.java) and [`ServerStarter.java`](src/main/java/com/lightstreamer/example_StockList_adapter_java_remote/server/ServerStarter.java) have been modified to accept multiple connections and associate to them new instances of `DataProviderServer` and a `MetadataProvider`.
@@ -32,7 +32,7 @@ Check out the sources for further explanations.
 
 In this section, we show how to deploy the following architecture to [k3d](https://k3d.io/), a lightweight Kubernetes distribution which is very easy to configure and use
 
-![Cluster Architecture](k8s-cluster.svg)
+![Cluster Architecture](k8s-cluster.png)
 
 This example can be used as a minimal starting point to set up a production-ready deployment for a more complex infrastructure hosted by a major cloud provider (AWS, GCP, Azure, etc.).
 
