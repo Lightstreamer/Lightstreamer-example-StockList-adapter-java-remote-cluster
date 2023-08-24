@@ -8,7 +8,7 @@ As example of [Clients Using This Adapter](https://github.com/Lightstreamer?utf8
 
 Normally, with Remote Lightstreamer Adapters, the Lightstreamer Server opens listening TCP ports to which the Remote Adapters connect.
 
-![Classic Architectyre](classic-architecture.svg)
+![Classic Architecture](classic-architecture.svg)
 
 However, there exist cases where it would be more flexible to invert the connections and allow the Lightstreamer Server to connect to the  Remote Adapters. By doing this, it is possible to have a single Remote Adapter serving multiple Lightstreamer Servers.
 
@@ -18,7 +18,7 @@ By eliminating the need to predefine the number of Lightstreamer instances and t
 
 Moreover, it is also be possible to set up a cluster of Remote Adapters behind a load balancer. This way, the Lightstreamer Server cluster and the Remote Adapter clusters can scale independently in a fully elastic way.
 
-![Cluster Architecture](cluster.svg)
+![Cluster Architecture](cluster-architecture.svg)
 
 Following are the main differences with the original projects:
 1. [`ServerMain.java`](src/main/java/com/lightstreamer/example_StockList_adapter_java_remote/server/ServerMain.java) and [`ServerStarter.java`](src/main/java/com/lightstreamer/example_StockList_adapter_java_remote/server/ServerStarter.java) have been modified to accept multiple connections and associate to them new instances of `DataProviderServer` and a `MetadataProvider`.
