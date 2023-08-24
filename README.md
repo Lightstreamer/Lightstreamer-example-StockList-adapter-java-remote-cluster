@@ -6,13 +6,17 @@ As example of [Clients Using This Adapter](https://github.com/Lightstreamer?utf8
 
 ## Details
 
-As depicted in the architecture diagram below, in this project the Remote Server opens a listening TCP port and Proxy Adapters connects to it.
+Normally, with Remote Lightstreamer Adapters, the Lightstreamer Server opens listening TCP ports to which the Remote Adapters connect.
 
-![General Architecture](architecture.svg)
+![Classic Architectyre](classic-architecture.svg)
 
-By eliminating the need to predefine the number of Lightstreamer instances and their addresses in advance, this new approach enables a single Remote Server to handle connections from all Ligitstreamer servers in a cluster. The Remote Server will simply need to spawn new `DataProviderSever` and `MetadataProviderServer` for each new incoming connection.
+However, there exist cases where it would be more flexible to invert the connections and allow the Lightstreamer Server to connect to the  Remote Adapters. By doing this, it is possible to have a single Remote Adapter serving multiple Lightstreamer Servers.
 
-Moreover, it would also be possible to set up a cluster of remote adapters behind a load balancer. This way, the two clusters can scale independently, allowing great flexibility and resource optimization.
+![Inverted Architecture](inverted-architecture.svg)
+
+By eliminating the need to predefine the number of Lightstreamer instances and their addresses in advance, this new approach enables a single Remote Server to handle connections from all the Ligitstreamer servers in a cluster. The Remote Adapter will simply need to spawn new `DataProviderSever` and `MetadataProviderServer` for each new incoming connection.
+
+Moreover, it is also be possible to set up a cluster of Remote Adapters behind a load balancer. This way, the Lightstreamer Server cluster and the Remote Adapter clusters can scale independently in a fully elastic way.
 
 ![Cluster Architecture](cluster.svg)
 
